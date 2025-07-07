@@ -1,0 +1,103 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Motion Recognition using IMU Sensor Fusion on Raspberry Pi}
+\author{Sahil \\ TH Deggendorf}
+\date{\today}
+
+\definecolor{codebg}{rgb}{0.95,0.95,0.95}
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  captionpos=b,
+  language=Python
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report presents a Raspberry Pi-based motion recognition system using IMU sensor fusion. The project collects accelerometer and gyroscope data via the Sense HAT module, classifies various motion patterns using a TensorFlow Lite model, and displays real-time predictions through the Sense HAT LED matrix.
+\end{abstract}
+
+\section{Introduction}
+Human activity recognition using inertial sensors is vital in areas like gesture control, fitness tracking, and robotics. This project aims to detect predefined motion patterns like shake, twist, and circle using the Sense HAT on Raspberry Pi.
+
+\section{Objective}
+To collect IMU sensor data, classify motion types in real time using a trained neural network, and provide visual feedback via the Sense HAT.
+
+\section{Hardware Used}
+\begin{itemize}
+    \item Raspberry Pi 4 Model B
+    \item Sense HAT
+    \item MicroSD Card (16GB or higher)
+    \item Power Supply
+\end{itemize}
+
+\section{Software Tools}
+\begin{itemize}
+    \item Raspbian OS
+    \item Python 3
+    \item TensorFlow Lite
+    \item NumPy
+\end{itemize}
+
+\section{Data Collection}
+IMU data was captured using the Sense HAT's built-in sensors. Below is the main script used:
+
+\subsection*{data\_capture.py}
+\begin{lstlisting}[caption={Data Capture Script}]
+% Paste from data_capture.py
+import os
+import time
+import numpy as np
+from sense_hat import SenseHat
+...
+\end{lstlisting}
+
+Each 1-second recording captured 50 samples of 6 features (acceleration + gyroscope). Files were saved as .npy in class-specific folders.
+
+\section{Model Prediction}
+The trained TensorFlow Lite model was loaded on Raspberry Pi to infer motion from live data.
+
+\subsection*{predict.py}
+\begin{lstlisting}[caption={Real-time Prediction Script}]
+% Paste from predict.py
+import tensorflow as tf
+import numpy as np
+import time
+from sense_hat import SenseHat
+...
+\end{lstlisting}
+
+\section{Results}
+The Sense HAT successfully displayed the predicted motion type in real-time using color codes. Prediction latency was under 0.1s.
+
+\section{Conclusion}
+The system accurately distinguishes between motion types in real time with minimal computation overhead. It demonstrates effective use of embedded ML on Raspberry Pi.
+
+\section{Future Work}
+\begin{itemize}
+    \item Improve classification with more complex gestures
+    \item Integrate cloud logging for motion tracking
+    \item Use a larger dataset for model training
+\end{itemize}
+
+\section{References}
+\begin{itemize}
+    \item Raspberry Pi Documentation: \url{https://www.raspberrypi.com/documentation/}
+    \item Sense HAT API: \url{https://pythonhosted.org/sense-hat/}
+    \item TensorFlow Lite: \url{https://www.tensorflow.org/lite}
+\end{itemize}
+
+\end{document}

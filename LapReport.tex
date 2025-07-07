@@ -1,0 +1,204 @@
+\documentclass[a4paper,12pt]{article}
+
+% Packages
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}  % For images
+\usepackage{listings}  % For code snippets
+\usepackage{xcolor}    % For code coloring
+\usepackage{hyperref}  % For hyperlinks
+\usepackage{amsmath}   % For math equations
+\usepackage{caption}   % Better captions
+\usepackage{geometry}  % Page layout
+\geometry{margin=2.5cm}
+
+% Remove paragraph indentation
+\setlength{\parindent}{0pt}
+
+% Code styling
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    breaklines=true,
+    frame=single
+}
+
+\title{Lab Report: \textbf{Lab05 Motion Recognition using IMU Sensor Fusion}}
+\author{Sahil Gore \\ 12505425  \\ Embedded Systems \\ Instructor: Prof. Tobias Schaffer}
+\date{5 July 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Gesture recognition using motion sensors offers an intuitive way to interact with embedded systems. In this lab, we developed a motion recognition system using a Raspberry Pi and Sense HAT, which provides IMU data from an accelerometer and gyroscope.
+
+We collected and labeled motion data for four gestures and used it to train a simple neural network. The trained model was converted to TensorFlow Lite and deployed on the Raspberry Pi. Based on real-time sensor readings, the system classifies the gesture and displays the result using the LED matrix. This project demonstrates how embedded AI can enable gesture-based control using low-cost hardware.
+
+\section{Objective}
+To collect IMU sensor data, classify motion types in real time using a trained neural network, and provide visual feedback via the Sense HAT.
+
+\section{Hardware and Software Used}
+\begin{itemize}
+    \item \textbf{Hardware:} Raspberry Pi 4 Model B, Sense HAT (IMU: accelerometer + gyroscope)
+    \item \textbf{Software:} Raspberry Pi OS, Python 3.9+, TensorFlow, NumPy, TensorFlow Lite, scikit-learn
+\end{itemize}
+
+\section{Methodology}
+This project’s methodology consists of collecting IMU sensor data, training a neural network model to classify gestures, and deploying the model on a Raspberry Pi for real-time inference. 
+
+\subsection*{Software and Code Implementation}
+
+\begin{itemize}
+    \item \textbf{Data Collection:} Sensor readings (accelerometer and gyroscope) are recorded at 50 Hz for one second per sample. Data is saved as NumPy arrays in class-labeled folders:
+\end{itemize}
+
+\begin{lstlisting}
+import os
+import time
+import numpy as np
+from sense_hat import SenseHat
+
+sense = SenseHat()
+LABEL = "move_circle"
+SAMPLES = 50
+DELAY = 1.0 / 50
+
+save_dir = f"./motion_data/{LABEL}"
+os.makedirs(save_dir, exist_ok=True)
+
+input("Press Enter to record 1 second of data")
+data = []
+for _ in range(SAMPLES):
+    acc = sense.get_accelerometer_raw()
+    gyro = sense.get_gyroscope_raw()
+    sample = [acc['x'], acc['y'], acc['z'], gyro['x'], gyro['y'], gyro['z']]
+    data.append(sample)
+    time.sleep(DELAY)
+
+np.save(f"{save_dir}/{LABEL}_{int(time.time())}.npy", np.array(data))
+\end{lstlisting}
+
+\begin{itemize}
+    \item \textbf{Model Training and Preparation:} The collected data samples are flattened and fed into a fully connected neural network with two hidden layers, trained using TensorFlow. The trained model is converted to TensorFlow Lite format for embedded deployment.
+\end{itemize}
+
+\subsection*{Sensor Output Graphs (6-Axis IMU Signals)}
+
+To better understand how each gesture appears in terms of raw sensor input, we plotted IMU signals (accelerometer and gyroscope) for each class. Each example contains six sensor signals over time for both accelerometer and gyroscope (x, y, z).
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\linewidth]{move_none_example1.png}
+\hfill
+\includegraphics[width=0.45\linewidth]{move_none_example2.png}
+\caption{Sensor plots for gesture: \texttt{move\_none} (Example 1 and 2)}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\linewidth]{move_circle_example1.png}
+\hfill
+\includegraphics[width=0.45\linewidth]{move_circle_example2.png}
+\caption{Sensor plots for gesture: \texttt{move\_circle} (Example 1 and 2)}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\linewidth]{move_shake_example1.png}
+\hfill
+\includegraphics[width=0.45\linewidth]{move_shake_example2.png}
+\caption{Sensor plots for gesture: \texttt{move\_shake} (Example 1 and 2)}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\linewidth]{move_twist_example1.png}
+\hfill
+\includegraphics[width=0.45\linewidth]{move_twist_example2.png}
+\caption{Sensor plots for gesture: \texttt{move\_twist} (Example 1 and 2)}
+\end{figure}
+
+\subsection*{Real-Time Inference}
+
+On the Raspberry Pi, the TensorFlow Lite model runs inference on incoming 1-second sensor windows. Based on the predicted motion, the Sense HAT’s LED matrix displays a corresponding color.
+
+\begin{lstlisting}
+import tensorflow as tf
+import numpy as np
+from sense_hat import SenseHat
+import time
+
+sense = SenseHat()
+interpreter = tf.lite.Interpreter(model_path="motion_model.tflite")
+interpreter.allocate_tensors()
+
+LABELS = ["move_none", "move_circle", "move_shake", "move_twist"]
+COLORS = {
+    "move_none": [0, 0, 0],
+    "move_circle": [255, 0, 0],
+    "move_shake": [0, 255, 0],
+    "move_twist": [0, 0, 255]
+}
+
+def read_sample():
+    acc = sense.get_accelerometer_raw()
+    gyro = sense.get_gyroscope_raw()
+    return [acc['x'], acc['y'], acc['z'], gyro['x'], gyro['y'], gyro['z']]
+
+while True:
+    samples = [read_sample() for _ in range(50)]
+    input_data = np.array(samples).flatten().astype(np.float32)
+    input_data = np.expand_dims(input_data, axis=0)
+
+    interpreter.set_tensor(interpreter.get_input_details()[0]['index'], input_data)
+    interpreter.invoke()
+    output = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])[0]
+
+    pred_index = int(np.argmax(output))
+    label = LABELS[pred_index]
+    sense.clear(COLORS[label])
+    time.sleep(0.1)
+\end{lstlisting}
+
+\section{Results}
+The motion recognition system was tested with four gestures. The model performed real-time inference with low latency and mapped each motion to a unique LED matrix color.
+
+\begin{itemize}
+    \item \textbf{Accuracy:} Training accuracy ~95\%, validation ~90\%
+    \item \textbf{Latency:} ~0.02–0.04 seconds per prediction
+    \item \textbf{Color Mapping:}
+    \begin{itemize}
+        \item move\_none → Black
+        \item move\_circle → Red
+        \item move\_shake → Green
+        \item move\_twist → Blue
+    \end{itemize}
+\end{itemize}
+
+\section{Challenges, Limitations, and Error Analysis}
+\begin{itemize}
+    \item Sensor noise and gesture overlap led to occasional false predictions.
+    \item Dataset was limited in size and diversity.
+    \item System sensitive to motion execution variations.
+\end{itemize}
+
+\section{Discussion}
+The project demonstrates real-time AI-based gesture recognition using embedded hardware. Simple models and clean data yielded accurate results. More complex gestures or continuous tracking may require advanced architectures like CNNs or LSTMs.
+
+\section{Conclusion}
+This lab successfully implemented real-time motion recognition using IMU sensor fusion and TensorFlow Lite. The system is effective, low-cost, and provides a foundation for future gesture-controlled interfaces.
+
+\section{References}
+\begin{itemize}
+    \item TensorFlow Lite: \url{https://www.tensorflow.org/lite}
+    \item Sense HAT API: \url{https://pythonhosted.org/sense-hat/}
+    \item THD Lab05 – Prof. Tobias Schaffer
+\end{itemize}
+
+\end{document}
