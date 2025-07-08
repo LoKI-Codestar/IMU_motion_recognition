@@ -4,7 +4,7 @@ This project implements a real-time gesture recognition system using the **Sense
 
 ---
 
-## 📌 Features
+##  Features
 
 - Real-time gesture recognition on Raspberry Pi  
 - IMU data fusion using accelerometer and gyroscope  
@@ -15,7 +15,7 @@ This project implements a real-time gesture recognition system using the **Sense
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 ```
 IMU_motion_recognition/
@@ -34,7 +34,7 @@ IMU_motion_recognition/
 
 ---
 
-## 🧠 Model Overview
+##  Model Overview
 
 - **Input shape**: 50 time steps × 6 features (flattened to 300)
 - **Architecture**: Fully Connected Neural Network with 2 hidden layers
@@ -43,7 +43,7 @@ IMU_motion_recognition/
 
 ---
 
-## 🎯 Gestures & LED Color Mapping
+##  Gestures & LED Color Mapping
 
 | Gesture       | LED Matrix Color |
 |---------------|------------------|
@@ -54,9 +54,9 @@ IMU_motion_recognition/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
-### ✅ Requirements
+###  Requirements
 
 - Raspberry Pi 4 or 5  
 - Sense HAT  
@@ -77,19 +77,19 @@ cd IMU_motion_recognition
 
 ---
 
-## 📊 Sensor Output Graphs
+##  Sensor Output Graphs
 
 The project includes time-series plots for each gesture showing 6-axis IMU signals (x, y, z from accelerometer and gyroscope). These are available under the `graphs/` folder.
 
 ---
 
-## 📸 Hardware Setup
+##  Hardware Setup
 
 Photos of the Raspberry Pi + Sense HAT setup, along with LED output during prediction, are available under the `images/` directory.
 
 ---
 
-## 📄 Lab Report
+##  Lab Report
 
 The complete technical documentation is written using LaTeX and can be found at:
 
@@ -101,7 +101,7 @@ This includes sections like Introduction, Methodology, Model Training, Results, 
 
 ---
 
-## 🙋‍♂️ Author
+##  Author
 
 **Sahil Gore**  
 TH Deggendorf  
@@ -109,7 +109,7 @@ TH Deggendorf
 
 ---
 
-## 📚 References
+##  References
 
 - [TensorFlow Lite Documentation](https://www.tensorflow.org/lite)  
 - [Sense HAT Python API](https://pythonhosted.org/sense-hat/)  
@@ -118,6 +118,6 @@ TH Deggendorf
 
 ---
 
-## 🙌 Contributions
+##  Contributions
 
 Feel free to fork the repo, suggest improvements, or open issues. PRs are welcome!
