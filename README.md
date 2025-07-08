@@ -1,130 +1,123 @@
-# IMU-Based Gesture Recognition using Raspberry Pi and TensorFlow Lite
+# IMU Motion Recognition using Sensor Fusion on Raspberry Pi
 
-This project implements real-time gesture recognition on a Raspberry Pi using IMU (accelerometer + gyroscope) sensor fusion via the Sense HAT module. A trained neural network classifies motion gestures and displays the result using color-coded output on the LED matrix.
-
----
-
-## 🔧 Project Overview
-
-- **Platform**: Raspberry Pi 4 Model B  
-- **Sensors**: Sense HAT (Accelerometer + Gyroscope)  
-- **Framework**: TensorFlow & TensorFlow Lite  
-- **Language**: Python 3  
-- **Recognition**: 4 predefined gestures:
-  - `move_none`
-  - `move_circle`
-  - `move_shake`
-  - `move_twist`
+This project implements a real-time gesture recognition system using the **Sense HAT** on a **Raspberry Pi**, leveraging 6-axis IMU data (accelerometer + gyroscope) to classify gestures like `move_none`, `move_circle`, `move_shake`, and `move_twist`. The trained model is deployed using **TensorFlow Lite** and provides visual output on the Sense HAT LED matrix.
 
 ---
 
-## 🧠 Model Pipeline
+## 📌 Features
 
-1. **Data Collection**  
-   Raw 6-axis IMU data recorded at 50 Hz for 1 second (50 samples).
-
-2. **Data Processing**  
-   Each sample is flattened into a vector and labeled according to the gesture performed.
-
-3. **Model Training**  
-   A simple fully connected neural network is trained using TensorFlow and exported to `.tflite`.
-
-4. **Deployment**  
-   Real-time inference is performed on the Pi using TensorFlow Lite, and results are shown on the LED matrix.
+- Real-time gesture recognition on Raspberry Pi  
+- IMU data fusion using accelerometer and gyroscope  
+- Model training using TensorFlow  
+- Deployment via TensorFlow Lite  
+- LED output mapped to gestures using color codes  
+- Graphical plots for 6-axis IMU signals  
 
 ---
 
 ## 📁 Repository Structure
 
 ```
-├── motion_data/              # Contains labeled .npy files for each gesture
-│   ├── move_circle/
-│   ├── move_none/
-│   ├── move_shake/
-│   └── move_twist/
-│
-├── data_capture.py           # Script to record gesture samples
-├── train_model.py            # (optional) Script to train and export the model
-├── predict.py                # Real-time inference script for Raspberry Pi
-├── motion_model.tflite       # Trained and exported model
-├── plots/                    # IMU signal graphs for each gesture
-│
-├── report/                   # LaTeX project report
-│   └── imu_gesture_report.tex
-│
-└── README.md                 # You're reading this!
+IMU_motion_recognition/
+├── data/                       # Raw .npy gesture recordings
+├── graphs/                     # 6-axis IMU signal graph images
+├── images/                     # Photos of LED matrix & hardware
+├── model/                      # Trained model (.tflite)
+├── src/
+│   ├── data_capture.py         # Script to collect IMU gesture data
+│   ├── train_model.py          # Model training script
+│   ├── predict.py              # Real-time inference script
+├── report/
+│   └── imu_gesture_report.tex  # Final LaTeX project report
+├── README.md                   # Project description (this file)
 ```
 
 ---
 
-## 🚀 Setup Instructions
+## 🧠 Model Overview
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/LoKI-Codestar/<your-repo-name>.git
-   cd <your-repo-name>
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   sudo apt update
-   pip install numpy tensorflow scikit-learn sense-hat
-   ```
-
-3. **Collect Data**
-   Run `data_capture.py` and perform gestures when prompted.  
-   Modify the `LABEL` variable as needed.
-
-4. **Run Inference**
-   Deploy `motion_model.tflite` to Raspberry Pi and run `predict.py`.
+- **Input shape**: 50 time steps × 6 features (flattened to 300)
+- **Architecture**: Fully Connected Neural Network with 2 hidden layers
+- **Output**: Softmax over 4 gesture classes
+- **Framework**: TensorFlow → TensorFlow Lite
 
 ---
 
-## 📊 Sample Results
+## 🎯 Gestures & LED Color Mapping
 
-- Accuracy: ~95% on training, ~90% on validation
-- Inference time: 20–40 ms
-- LED Output:
-  - `move_none` – Black (off)
-  - `move_circle` – Red
-  - `move_shake` – Green
-  - `move_twist` – Blue
-
----
-
-## 📸 Screenshots
-
-<p float="left">
-  <img src="plots/move_circle_example1.png" width="45%" />
-  <img src="plots/move_circle_example2.png" width="45%" />
-</p>
-
-<p float="left">
-  <img src="plots/move_twist_example1.png" width="45%" />
-  <img src="plots/move_twist_example2.png" width="45%" />
-</p>
+| Gesture       | LED Matrix Color |
+|---------------|------------------|
+| move_none     | Black (OFF)      |
+| move_circle   | Red              |
+| move_shake    | Green            |
+| move_twist    | Blue             |
 
 ---
 
-## 📄 Report
+## 🚀 Getting Started
 
-The complete lab report with methodology, graphs, and analysis is available in the `report/` folder.  
-📄 [`imu_gesture_report.tex`](report/imu_gesture_report.tex)
+### ✅ Requirements
+
+- Raspberry Pi 4 or 5  
+- Sense HAT  
+- Python 3.9+  
+- TensorFlow & TensorFlow Lite  
+- NumPy, scikit-learn  
+
+### 🔧 Setup Instructions
+
+```bash
+git clone https://github.com/LoKI-Codestar/IMU_motion_recognition.git
+cd IMU_motion_recognition
+```
+
+1. Collect gesture data using `src/data_capture.py`  
+2. Train your model using `src/train_model.py`  
+3. Deploy and run live inference using `src/predict.py`
+
+---
+
+## 📊 Sensor Output Graphs
+
+The project includes time-series plots for each gesture showing 6-axis IMU signals (x, y, z from accelerometer and gyroscope). These are available under the `graphs/` folder.
+
+---
+
+## 📸 Hardware Setup
+
+Photos of the Raspberry Pi + Sense HAT setup, along with LED output during prediction, are available under the `images/` directory.
+
+---
+
+## 📄 Lab Report
+
+The complete technical documentation is written using LaTeX and can be found at:
+
+```
+report/imu_gesture_report.tex
+```
+
+This includes sections like Introduction, Methodology, Model Training, Results, Challenges, and Conclusion.
+
+---
+
+## 🙋‍♂️ Author
+
+**Sahil Gore**  
+TH Deggendorf  
+[GitHub: LoKI-Codestar](https://github.com/LoKI-Codestar)
 
 ---
 
 ## 📚 References
 
-- [TensorFlow Lite](https://www.tensorflow.org/lite)
-- [Sense HAT Python API](https://pythonhosted.org/sense-hat/)
-- [Raspberry Pi Docs](https://www.raspberrypi.com/documentation/)
+- [TensorFlow Lite Documentation](https://www.tensorflow.org/lite)  
+- [Sense HAT Python API](https://pythonhosted.org/sense-hat/)  
+- [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/)  
+- THD Lab05 – Prof. Tobias Schaffer
 
 ---
 
-## 👤 Author
+## 🙌 Contributions
 
-**Sahil Gore**  
-TH Deggendorf – Embedded Systems Lab 05  
-Instructor: Prof. Tobias Schaffer
-
----
+Feel free to fork the repo, suggest improvements, or open issues. PRs are welcome!
